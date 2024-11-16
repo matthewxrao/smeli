@@ -1,4 +1,4 @@
-/* Container styles */
+/* Main container */
 .reviews-scroll-container {
   display: flex;
   flex-direction: column;
@@ -7,6 +7,8 @@
   max-height: 80vh;
   overflow-y: auto;
   background-color: #f5f5f5;
+  width: 320px; /* Fixed sidebar width */
+  border-right: 1px solid #e2e8f0;
 }
 
 /* Scrollbar styling */
@@ -28,50 +30,183 @@
   background: #666;
 }
 
-/* Preview card metadata */
-.preview-meta {
+/* Empty State */
+.reviews-scroll-container:empty::after {
+  content: "No reviews available";
+  color: #666;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 24px 12px;
+}
+
+/* Review Card */
+.review-preview-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.review-preview-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Card Header */
+.preview-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.review-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e293b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Meta Information */
+.preview-meta {
+  display: flex;
+  flex-direction: row; /* Explicitly set horizontal direction */
+  justify-content: space-between;
+  align-items: center; /* Center items vertically */
+  gap: 8px; /* Increased gap for better spacing between elements */
   margin: 4px 0;
   font-size: 0.85rem;
   color: #666;
+  width: 100%; /* Ensure it takes full width */
+}
+
+.preview-username {
+  font-size: 0.75rem;
+  color: #64748b;
+  align-self: center;
 }
 
 .preview-date {
-  color: #888;
+  font-size: 0.75rem;
+  color: #94a3b8;
 }
 
-/* Detail view metadata */
-.review-title-group {
-  flex: 1;
+.preview-location {
+  font-size: 0.8rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.review-meta {
+.preview-distance {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 4px 0;
+}
+
+/* Ratings */
+.preview-rating {
   display: flex;
-  gap: 12px;
   align-items: center;
-  font-size: 0.9rem;
-  color: #666;
-  margin-top: 4px;
+  gap: 4px;
+  margin-top: 8px;
 }
 
-.review-author {
-  color: #444;
-  font-weight: 500;
+.stars {
+  display: flex;
+  gap: 1px;
 }
 
-.review-date {
-  color: #888;
+/* Action Buttons */
+.review-actions {
+  display: flex;
+  gap: 4px;
 }
 
-.review-edited {
-  color: #888;
-  font-style: italic;
-  font-size: 0.85rem;
+.action-button {
+  padding: 4px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: #f1f5f9;
+}
+
+.action-button.edit:hover {
+  color: #3b82f6;
+}
+
+.action-button.delete:hover {
+  color: #ef4444;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 320px; /* Align with sidebar width */
+  width: calc(100% - 320px);
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .reviews-scroll-container {
+    width: 100%;
+    border-right: none;
+  }
+
+  .modal {
+    left: 0;
+    width: 100%;
+  }
+
+  .modal-content {
+    padding: 24px;
+    width: 95%;
+  }
 }
 
 @media (max-width: 480px) {
+  .preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
   .preview-meta {
     flex-direction: column;
     align-items: flex-start;
@@ -82,114 +217,22 @@
     flex-wrap: wrap;
     gap: 8px;
   }
-}
 
-/* Ensure other preview elements stack properly */
-.preview-location {
-  color: #666;
-  font-size: 0.9rem;
-  margin: 4px 0;
-}
+  .preview-title {
+    font-size: 0.85rem;
+  }
 
-.preview-distance {
-  font-size: 0.9rem;
-  color: #666;
-  margin: 4px 0;
-}
+  .preview-location {
+    font-size: 0.9rem;
+  }
 
-.preview-rating {
-  display: flex;
-  align-items: center;
-  margin-top: 8px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 480px) {
-  .preview-header {
+  .review-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .preview-username {
-    font-size: 0.75rem;
+    gap: 8px;
   }
 }
 
-/* Detail modal styles */
-.detail-location {
-  color: #666;
-  font-size: 1rem;
-  margin: -16px 0 24px 0;
-}
-
-.ratings-container {
-  background-color: #f8f8f8;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 24px;
-}
-
-.main-rating {
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-}
-
-.main-rating label {
-  display: block;
-  color: #333;
-  font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: 8px;
-}
-
-.secondary-ratings {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-}
-
-.secondary-rating label {
-  display: block;
-  color: #666;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.secondary-rating .stars {
-  opacity: 0.8;
-}
-
-/* Modal styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.modal-content {
-  background: white;
-  padding: 32px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
+/* Modal close button */
 .close {
   position: absolute;
   right: 24px;
@@ -211,190 +254,138 @@
   color: #333;
 }
 
-/* Review detail styles */
+/* Review Detail Styles */
 .review-detail {
   padding: 20px 0;
 }
 
 .review-detail h2 {
-  margin: 0 0 24px 0;
-  color: #333;
+  margin: 0 0 8px 0;
+  color: #1e293b;
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.rating-group {
-  margin-bottom: 20px;
-  padding: 12px 16px;
-  background-color: #f8f8f8;
-  border-radius: 8px;
+.detail-location {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0 0 24px 0;
 }
 
-.rating-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #666;
-  font-weight: 500;
+.detail-distance {
+  color: #64748b;
   font-size: 0.9rem;
+  margin: -20px 0 24px 0;
+}
+
+/* Ratings Container Styling */
+.ratings-container {
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Main Rating Styling */
+.main-rating {
+  text-align: center;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.main-rating label {
+  display: block;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.stars {
+.main-rating .stars {
   display: flex;
-  align-items: center;
-  gap: 2px;
+  justify-content: center;
+  gap: 4px;
 }
 
+/* Secondary Ratings Styling */
+.secondary-ratings {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.secondary-rating {
+  text-align: center;
+}
+
+.secondary-rating label {
+  display: block;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.secondary-rating .stars {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  opacity: 0.8;
+}
+
+/* Notes Section Styling */
 .notes-section {
   margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
+  padding: 24px;
+  border-radius: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
 .notes-section h3 {
   margin: 0 0 12px 0;
-  font-size: 1.1rem;
-  color: #666;
+  font-size: 1rem;
+  color: #1e293b;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .notes-section p {
-  color: #444;
-  line-height: 1.5;
+  color: #475569;
+  line-height: 1.6;
   margin: 0;
   white-space: pre-wrap;
 }
 
-.visits-section {
-  margin-top: 20px;
-  padding: 12px 16px;
-  background-color: #f8f8f8;
-  border-radius: 8px;
-  color: #666;
+/* Author and Meta Information */
+.review-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.visits-section p {
-  margin: 0;
+.review-author {
+  color: #64748b;
   font-weight: 500;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .modal-content {
-    padding: 24px;
-    width: 95%;
-  }
-
-  .review-detail {
-    padding: 10px 0;
-  }
-
-  .rating-group {
-    padding: 10px 12px;
-  }
-
-  .review-detail h2 {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-  }
-}
-
-/* Animation classes */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.modal {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.modal-content {
-  animation: slideUp 0.3s ease-out;
-}
-
-/* Accessibility focus styles */
-.review-preview-card:focus {
-  outline: 2px solid #4a90e2;
-  outline-offset: 2px;
-}
-
-.close:focus {
-  outline: 2px solid #4a90e2;
-  outline-offset: 2px;
-}
-
-/* Empty state */
-.reviews-scroll-container:empty {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-}
-
-.reviews-scroll-container:empty::after {
-  content: "No reviews available";
-  color: #666;
-  font-size: 1.1rem;
-}
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.review-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.action-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.action-button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.action-button.edit {
-  color: #4a90e2;
-}
-
-.action-button.delete {
-  color: #e25c5c;
-}
-
-.preview-distance {
   font-size: 0.9rem;
-  color: #666;
-  margin: 0.2rem 0;
 }
 
-.detail-distance {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 1rem;
+.review-date {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.review-location,
+.review-distance {
+  font-size: 0.85rem;
+  color: #64748b;
 }
