@@ -5,7 +5,7 @@ import { FaPlus } from "react-icons/fa6";
 import "../styles/Navbar.css";
 
 function NavigationBar({
-  username,
+  user,
   onLogout,
   openCreateModal,
   viewMode,
@@ -54,8 +54,8 @@ function NavigationBar({
             <>
               <div className="overlay" onClick={handleClickOutside} />
               <div className="dropdown-menu">
-                <div className="dropdown-item">
-                  <span>View Profile</span>
+                <div className="dropdown-item1">
+                  <span>Hi, {user.username}!</span>
                 </div>
                 <div className="dropdown-item" onClick={onLogout}>
                   <span>Logout</span>

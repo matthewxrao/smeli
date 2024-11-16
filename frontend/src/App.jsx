@@ -255,7 +255,7 @@ function App() {
   return (
     <>
       <NavigationBar
-        username={user?.username}
+        user={user}
         onLogout={handleLogout}
         openCreateModal={openCreateModal}
         viewMode={viewMode}
