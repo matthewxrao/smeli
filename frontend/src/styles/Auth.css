@@ -1,0 +1,234 @@
+/* -----------------------------    Authentication Styles ----------------------------- */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1.5rem;
+}
+
+.auth-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.02);
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.app-title {
+  font-family: var(--font-brand);
+  color: #007bff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+  color: #2d3748;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.auth-description {
+  color: #718096;
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+.auth-error {
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.error-icon {
+  width: 18px;
+  height: 18px;
+  color: #e53e3e;
+  flex-shrink: 0;
+}
+
+.auth-error p {
+  color: #c53030;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%; /* Added to ensure full width */
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%; /* Added to ensure full width */
+}
+
+.form-field label {
+  color: #4a5568;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding-left: 0.25rem;
+}
+
+.form-field input {
+  width: 100%;
+  padding: 0.5rem 1rem; /* Updated padding to add space on both sides */
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: var(--font-main);
+  transition: all 0.2s ease;
+  color: #2d3748;
+  background-color: #fff;
+  height: 2.75rem;
+  box-sizing: border-box; /* Added to include padding in width calculation */
+}
+
+.form-field input:hover {
+  border-color: #cbd5e0;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.form-field input::placeholder {
+  color: #a0aec0;
+}
+
+.auth-submit {
+  background-color: #007bff;
+  color: white;
+  height: 2.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.auth-submit:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.auth-submit:active {
+  transform: translateY(0);
+}
+
+.auth-submit:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25), 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.auth-submit:disabled {
+  background-color: #e2e8f0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-switch {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.auth-switch:hover {
+  color: #0056b3;
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.auth-switch:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* Success state */
+.auth-success {
+  background-color: #f0fff4;
+  border: 1px solid #c6f6d5;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.success-icon {
+  width: 18px;
+  height: 18px;
+  color: #38a169;
+  flex-shrink: 0;
+}
+
+.auth-success p {
+  color: #2f855a;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 1rem;
+  }
+
+  .auth-card {
+    padding: 1.5rem;
+  }
+
+  .app-title {
+    font-size: 2rem;
+  }
+
+  .auth-subtitle {
+    font-size: 1.125rem;
+  }
+
+  .auth-form {
+    gap: 1rem;
+  }
+}

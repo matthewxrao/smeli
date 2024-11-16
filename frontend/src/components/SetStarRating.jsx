@@ -1,29 +1,48 @@
 import React, { useState } from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 
-const SetStarRating = ({ value, onChange }) => {
+const SetStarRating = ({ value, onChange, disabled = false }) => {
   const [hoveredValue, setHoveredValue] = useState(0);
 
-  const handleMouseOver = (index) => setHoveredValue(index);
-  const handleMouseLeave = () => setHoveredValue(0);
-  const handleClick = (index) => onChange(index);
+  const handleMouseOver = (index) => {
+    if (!disabled) {
+      setHoveredValue(index);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!disabled) {
+      setHoveredValue(0);
+    }
+  };
+
+  const handleClick = (index) => {
+    if (!disabled) {
+      onChange(index);
+    }
+  };
 
   const renderStarIcon = (index, activeValue) => {
-    if (index <= activeValue)
-      return <FaStar style={{ color: "#ff0", fontSize: "28px" }} />;
-    if (index - 0.5 === activeValue)
-      return <FaStarHalfAlt style={{ color: "#ff0", fontSize: "28px" }} />;
-    return <FaRegStar style={{ color: "#ccc", fontSize: "28px" }} />;
+    const starStyle = {
+      color: "#ff0",
+      fontSize: "28px",
+      opacity: disabled ? 0.6 : 1,
+      cursor: disabled ? "default" : "pointer",
+    };
+
+    if (index <= activeValue) return <FaStar style={starStyle} />;
+    if (index - 0.5 === activeValue) return <FaStarHalfAlt style={starStyle} />;
+    return <FaRegStar style={{ ...starStyle, color: "#ccc" }} />;
   };
 
   return (
     <div
       className="star-rating"
       onMouseLeave={handleMouseLeave}
-      style={{ display: "flex", cursor: "pointer" }}
+      style={{ display: "flex", cursor: disabled ? "default" : "pointer" }}
     >
       {Array.from({ length: 5 }, (_, i) => {
-        const starIndex = i + 1; // Full star increments
+        const starIndex = i + 1;
         return (
           <span
             key={starIndex}

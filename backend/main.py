@@ -1,79 +1,139 @@
 from flask import request, jsonify
 from config import app, db
-from models import Review
+from models import Review, User
+from functools import wraps
+import jwt
+from datetime import datetime, timedelta
 
-# Get all reviews
+# Secret key for JWT
+app.config['SECRET_KEY'] = 'your-secret-key'  # Change this to a secure secret key in production
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+        try:
+            token = token.split()[1]  # Remove 'Bearer ' prefix
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = User.query.get(data['user_id'])
+        except:
+            return jsonify({'message': 'Token is invalid'}), 401
+        return f(current_user, *args, **kwargs)
+    return decorated
+
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.json
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({"message": "Missing username or password"}), 400
+
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({"message": "Username already exists"}), 400
+
+    new_user = User(username=data['username'])
+    new_user.set_password(data['password'])
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"message": "User created successfully"}), 201
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({"message": "Missing username or password"}), 400
+
+    user = User.query.filter_by(username=data['username']).first()
+    if not user or not user.check_password(data['password']):
+        return jsonify({"message": "Invalid username or password"}), 401
+
+    token = jwt.encode({
+        'user_id': user.id,
+        'exp': datetime.utcnow() + timedelta(days=1)
+    }, app.config['SECRET_KEY'])
+
+    return jsonify({
+        "token": token,
+        "user": user.to_json()
+    })
+
 @app.route("/reviews", methods=["GET"])
-def get_reviews():
-    reviews = Review.query.all()
-    json_reviews = list(map(lambda x: x.to_json(), reviews))
-    return jsonify({"reviews": json_reviews})
+@token_required
+def get_reviews(current_user):
+    reviews = Review.query.filter_by(user_id=current_user.id).all()
+    return jsonify({"reviews": [review.to_json() for review in reviews]})
 
-# Create review
 @app.route("/create_review", methods=["POST"])
-def create_review():
-    location = request.json.get("location")
-    overall_experience = request.json.get("overall_experience")
-    cleanliness = request.json.get("cleanliness")
-    ambience = request.json.get("ambience")
-    extra_amenities = request.json.get("extra_amenities")
-    notes = request.json.get("notes")
-
-    if not location or not overall_experience or not cleanliness or not ambience or not extra_amenities:
-        return jsonify({"message": "You must provide the location and rating of the overall experience, cleanliness, ambience, and extra amenities"}), 400
+@token_required
+def create_review(current_user):
+    data = request.json
+    required_fields = ["location", "cleanliness", "ambience", "extra_amenities"]
+    
+    if not all(field in data for field in required_fields):
+        return jsonify({"message": "Missing required fields"}), 400
 
     new_review = Review(
-        location=location, 
-        overall_experience=overall_experience, 
-        cleanliness=cleanliness, 
-        ambience=ambience, 
-        extra_amenities=extra_amenities, 
-        notes=notes,
-        times_visited=1
+        location=data["location"],
+        cleanliness=data["cleanliness"],
+        ambience=data["ambience"],
+        extra_amenities=data["extra_amenities"],
+        notes=data.get("notes"),
+        user_id=current_user.id
     )
+    
+    # Calculate overall experience
+    new_review.overall_experience = new_review.calculate_overall_experience()
+
     try:
         db.session.add(new_review)
         db.session.commit()
     except Exception as e:
         return jsonify({"message": f"An error occurred: {str(e)}"}), 400
-    
+
     return jsonify({"message": "Review created successfully!"}), 201
 
-# Update review
-@app.route("/update_review/<int:user_id>", methods=["PATCH"])
-def update_review(user_id):
-    review = Review.query.get(user_id)
-
+@app.route("/update_review/<int:review_id>", methods=["PATCH"])
+@token_required
+def update_review(current_user, review_id):
+    review = Review.query.filter_by(id=review_id, user_id=current_user.id).first()
     if not review:
-        return jsonify({"message": "Review not found!"}), 404
-    
+        return jsonify({"message": "Review not found or unauthorized"}), 404
+
     data = request.json
-    review.location = data.get("location", review.location)
-    review.overall_experience = data.get("overall_experience", review.overall_experience)
-    review.cleanliness = data.get("cleanliness", review.cleanliness)
-    review.ambience = data.get("ambience", review.ambience)
-    review.extra_amenities = data.get("extra_amenities", review.extra_amenities)
-    review.notes = data.get("notes", review.notes)
-    review.times_visited = review.times_visited + 1
-
-    db.session.commit()
-
-    return jsonify({"message": "Review updated successfully!"}), 200
-
-@app.route("/delete_review/<int:user_id>", methods=["DELETE"])
-def delete_contact(user_id):
-    review = Review.query.get(user_id)
-
-    if not review:
-        return jsonify({"message": "Review not found!"}), 404
     
+    for field in ["location", "cleanliness", "ambience", "extra_amenities", "notes"]:
+        if field in data:
+            setattr(review, field, data[field])
+    
+    if any(field in data for field in ["cleanliness", "ambience", "extra_amenities"]):
+        review.overall_experience = review.calculate_overall_experience()
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 400
+
+    return jsonify({
+        "message": "Review updated successfully!",
+        "review": review.to_json()
+    }), 200
+
+
+@app.route("/delete_review/<int:review_id>", methods=["DELETE"])
+@token_required
+def delete_review(current_user, review_id):
+    review = Review.query.filter_by(id=review_id, user_id=current_user.id).first()
+    if not review:
+        return jsonify({"message": "Review not found or unauthorized"}), 404
+
     db.session.delete(review)
     db.session.commit()
-
     return jsonify({"message": "Review deleted successfully!"}), 200
 
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-
     app.run(debug=True)
