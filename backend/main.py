@@ -70,13 +70,16 @@ def get_reviews(current_user):
 @token_required
 def create_review(current_user):
     data = request.json
-    required_fields = ["location", "cleanliness", "ambience", "extra_amenities"]
+    required_fields = ["title", "location", "latitude", "longitude", "cleanliness", "ambience", "extra_amenities"]
     
     if not all(field in data for field in required_fields):
         return jsonify({"message": "Missing required fields"}), 400
 
     new_review = Review(
+        title=data["title"],
         location=data["location"],
+        latitude=data["latitude"],
+        longitude=data["longitude"],
         cleanliness=data["cleanliness"],
         ambience=data["ambience"],
         extra_amenities=data["extra_amenities"],
@@ -84,7 +87,6 @@ def create_review(current_user):
         user_id=current_user.id
     )
     
-    # Calculate overall experience
     new_review.overall_experience = new_review.calculate_overall_experience()
 
     try:
@@ -104,7 +106,7 @@ def update_review(current_user, review_id):
 
     data = request.json
     
-    for field in ["location", "cleanliness", "ambience", "extra_amenities", "notes"]:
+    for field in ["title", "location", "latitude", "longitude", "cleanliness", "ambience", "extra_amenities", "notes"]:
         if field in data:
             setattr(review, field, data[field])
     

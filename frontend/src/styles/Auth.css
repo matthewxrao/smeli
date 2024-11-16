@@ -46,46 +46,75 @@
   margin-bottom: 0;
 }
 
-.auth-error {
-  background-color: #fff5f5;
-  border: 1px solid #fed7d7;
+.auth-error,
+.auth-success {
   padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
   border-radius: 8px;
+  border: 1px solid;
 }
 
-.error-content {
+/* Error Specific Styles */
+.auth-error {
+  background-color: #fff5f5;
+  border-color: #fed7d7;
+}
+
+/* Success Specific Styles */
+.auth-success {
+  background-color: #f0fff4;
+  border-color: #c6f6d5;
+}
+
+.message-content {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+}
+
+.error-icon,
+.success-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .error-icon {
-  width: 18px;
-  height: 18px;
   color: #e53e3e;
-  flex-shrink: 0;
+}
+
+.success-icon {
+  color: #38a169;
+}
+
+.auth-error p,
+.auth-success p {
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.4;
 }
 
 .auth-error p {
   color: #c53030;
-  font-size: 0.875rem;
-  margin: 0;
-  line-height: 1.5;
 }
 
+.auth-success p {
+  color: #2f855a;
+}
+
+/* Form Styles */
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  width: 100%; /* Added to ensure full width */
+  width: 100%;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
-  width: 100%; /* Added to ensure full width */
+  width: 100%;
 }
 
 .form-field label {
@@ -98,7 +127,7 @@
 
 .form-field input {
   width: 100%;
-  padding: 0.5rem 1rem; /* Updated padding to add space on both sides */
+  padding: 0.5rem 1rem;
   border: 1.5px solid #e2e8f0;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -107,7 +136,7 @@
   color: #2d3748;
   background-color: #fff;
   height: 2.75rem;
-  box-sizing: border-box; /* Added to include padding in width calculation */
+  box-sizing: border-box;
 }
 
 .form-field input:hover {
@@ -182,32 +211,6 @@
 .auth-switch:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
-}
-
-/* Success state */
-.auth-success {
-  background-color: #f0fff4;
-  border: 1px solid #c6f6d5;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1.5rem;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.success-icon {
-  width: 18px;
-  height: 18px;
-  color: #38a169;
-  flex-shrink: 0;
-}
-
-.auth-success p {
-  color: #2f855a;
-  font-size: 0.875rem;
-  margin: 0;
-  line-height: 1.5;
 }
 
 /* Responsive adjustments */

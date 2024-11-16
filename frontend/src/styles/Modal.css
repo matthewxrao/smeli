@@ -1,8 +1,7 @@
 /* -----------------------------
-   Modal Styles
+   Modal & Form Container Styles
 ----------------------------- */
-.modal,
-.edit-modal {
+.modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,6 +12,254 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
-/* [Rest of modal styles from the unified CSS] */
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+  position: absolute;
+  right: 1.25rem;
+  top: 1.25rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.close:hover {
+  color: #333;
+  background-color: #f3f4f6;
+}
+
+/* -----------------------------
+   Form Layout Styles
+----------------------------- */
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* -----------------------------
+   Form Elements Styles
+----------------------------- */
+.form-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* Unified input styles */
+.form-input,
+.form-textarea,
+.location-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  width: 100%;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.location-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* -----------------------------
+   Overall Experience Section
+----------------------------- */
+.form-group:first-child {
+  align-items: center;
+  text-align: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 0.5rem;
+}
+
+.form-group:first-child label {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.form-group:first-child .stars {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.form-group:first-child .rating-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* -----------------------------
+   Star Rating Styles
+----------------------------- */
+.star-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.star-rating.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rating-value {
+  margin-left: 0.5rem;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+/* -----------------------------
+   Location Autocomplete Styles
+----------------------------- */
+.location-autocomplete {
+  width: 100%;
+  position: relative;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+}
+
+.suggestion-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f3f4f6;
+}
+
+.loading-indicator {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 0.875rem;
+}
+
+/* -----------------------------
+   Submit Button Styles
+----------------------------- */
+.submit-button {
+  background-color: #007bff;
+  color: white;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.submit-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* -----------------------------
+   Responsive Adjustments
+----------------------------- */
+@media (max-width: 768px) {
+  .modal {
+    padding: 0.5rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 1rem;
+  }
+
+  .form-group:first-child label {
+    font-size: 1.1rem;
+  }
+
+  .form-input,
+  .form-textarea,
+  .location-input,
+  .submit-button,
+  .suggestion-item {
+    padding: 0.625rem 0.875rem;
+  }
+
+  .form-group {
+    gap: 0.375rem;
+  }
+}

@@ -21,7 +21,10 @@ class User(db.Model):
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
     location = db.Column(db.String(255), nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
     overall_experience = db.Column(db.Float, nullable=False)
     cleanliness = db.Column(db.Integer, nullable=False)
     ambience = db.Column(db.Integer, nullable=False)
@@ -36,7 +39,10 @@ class Review(db.Model):
     def to_json(self):
         return {
             "id": self.id,
+            "title": self.title,
             "location": self.location,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
             "overall_experience": self.overall_experience,
             "cleanliness": self.cleanliness,
             "ambience": self.ambience,

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import LocationAutocomplete from "./LocationAutocomplete";
 import SetStarRating from "./SetStarRating";
 import "../styles/Reviews.css";
 import "../styles/Modal.css";
@@ -12,7 +13,10 @@ function ReviewForm({
   isEditing,
 }) {
   const [formData, setFormData] = useState({
+    title: "",
     location: "",
+    latitude: null,
+    longitude: null,
     overall_experience: 0,
     cleanliness: 0,
     ambience: 0,
@@ -40,6 +44,11 @@ function ReviewForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.latitude || !formData.longitude) {
+      alert("Please select a valid location from the suggestions");
+      return;
+    }
 
     if (isEditing && onSubmit) {
       await onSubmit(formData);
@@ -75,6 +84,15 @@ function ReviewForm({
     });
   };
 
+  const handleLocationSelect = (locationData) => {
+    setFormData({
+      ...formData,
+      location: locationData.displayName,
+      latitude: locationData.latitude,
+      longitude: locationData.longitude,
+    });
+  };
+
   const handleRatingChange = (name, value) => {
     setFormData({
       ...formData,
@@ -90,22 +108,28 @@ function ReviewForm({
           <span className="rating-value">{formData.overall_experience}</span>
           <SetStarRating
             value={formData.overall_experience}
-            onChange={() => {}} // Empty function since this is read-only
+            onChange={() => {}}
             disabled={true}
           />
         </div>
       </div>
 
       <div className="form-group">
-        <label>Location</label>
+        <label>Title</label>
         <input
           type="text"
-          name="location"
-          value={formData.location}
+          name="title"
+          value={formData.title}
           onChange={handleChange}
           required
           className="form-input"
+          placeholder="Give your review a title..."
         />
+      </div>
+
+      <div className="form-group">
+        <label>Location</label>
+        <LocationAutocomplete onLocationSelect={handleLocationSelect} />
       </div>
 
       <div className="form-group">
