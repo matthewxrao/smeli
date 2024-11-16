@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ReviewList from "./components/ReviewList";
-import MakeReview from "./components/MakeReview";
+import ReviewForm from "./components/MakeReview";
 import "./App.css";
 
 function App() {
@@ -36,7 +36,7 @@ function App() {
             <span className="close" onClick={closeModal}>
               &times;
             </span>
-            <MakeReview fetchReviews={fetchReviews} closeModal={closeModal} />
+            <ReviewForm fetchReviews={fetchReviews} closeModal={closeModal} />
           </div>
         </div>
       )}
