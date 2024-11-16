@@ -1,3 +1,4 @@
+from pydoc import text
 from flask import request, jsonify
 from config import app, db
 from models import Review, User
@@ -60,11 +61,73 @@ def login():
         "user": user.to_json()
     })
 
-@app.route("/reviews", methods=["GET"])
+@app.route("/reviews/nearby", methods=["GET"])
 @token_required
-def get_reviews(current_user):
-    reviews = Review.query.filter_by(user_id=current_user.id).all()
-    return jsonify({"reviews": [review.to_json() for review in reviews]})
+def get_nearby_reviews(current_user):
+    # Get latitude and longitude from query parameters
+    try:
+        lat = float(request.args.get('latitude'))
+        lng = float(request.args.get('longitude'))
+    except (TypeError, ValueError):
+        return jsonify({"message": "Invalid latitude or longitude"}), 400
+
+    # Haversine formula in SQL to calculate distance
+    distance_query = """
+    WITH distances AS (
+        SELECT 
+            *,
+            (6371 * acos(
+                cos(radians(:latitude)) * 
+                cos(radians(latitude)) * 
+                cos(radians(longitude) - radians(:longitude)) + 
+                sin(radians(:latitude)) * 
+                sin(radians(latitude))
+            )) AS distance
+        FROM review
+    )
+    SELECT * FROM distances 
+    ORDER BY distance ASC 
+    LIMIT 10;
+    """
+
+    try:
+        result = db.session.execute(
+            text(distance_query),
+            {"latitude": lat, "longitude": lng}
+        )
+        
+        # Convert result to list of dictionaries
+        nearby_reviews = []
+        for row in result:
+            review_dict = {
+                "id": row.id,
+                "title": row.title,
+                "location": row.location,
+                "latitude": row.latitude,
+                "longitude": row.longitude,
+                "overall_experience": row.overall_experience,
+                "cleanliness": row.cleanliness,
+                "ambience": row.ambience,
+                "extra_amenities": row.extra_amenities,
+                "notes": row.notes,
+                "distance_km": round(row.distance, 2)
+            }
+            nearby_reviews.append(review_dict)
+
+        return jsonify({"reviews": nearby_reviews})
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+
+@app.route("/reviews/user", methods=["GET"])
+@token_required
+def get_user_reviews(current_user):
+    try:
+        user_reviews = Review.query.filter_by(user_id=current_user.id).all()
+        return jsonify({
+            "reviews": [review.to_json() for review in user_reviews]
+        })
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
 
 @app.route("/create_review", methods=["POST"])
 @token_required
