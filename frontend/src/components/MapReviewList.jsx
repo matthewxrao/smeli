@@ -326,9 +326,7 @@ const MapReviewList = ({
 
         <div className="review-list-content">
           <div className="reviews-header">
-            <h2>
-              {viewMode === "user" ? "My entries" : "Bathrooms around you"}
-            </h2>
+            <h2>{viewMode === "user" ? "My Entries" : "Bathrooms Nearby"}</h2>
             <span className="reviews-count">
               {reviews.length} {reviews.length === 1 ? "entry" : "entries"}
             </span>
