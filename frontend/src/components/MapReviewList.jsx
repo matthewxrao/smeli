@@ -289,8 +289,11 @@ const MapReviewList = ({
               }}
             >
               <Popup>
-                <h4>{review.title}</h4>
+                <h3>{review.title}</h3>
                 <p>{review.location}</p>
+                <h4>by: {review.username}</h4>
+                <h4>Rating: {review.overall_experience}</h4>
+                <h5>{review.note}</h5>
               </Popup>
             </Marker>
           ))}
