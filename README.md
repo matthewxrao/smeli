@@ -79,9 +79,8 @@ frontend/
    ```
 
 4. **Run the Flask application:**
-   ```sh
-   flask run
-   ```
+
+   click run in VSCODE or source the python file in terminal
 
 ### Frontend
 
