@@ -28,37 +28,92 @@
   background: #666;
 }
 
-/* Preview card styles */
-.review-preview-card {
-  background: white;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+/* Preview card metadata */
+.preview-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: #666;
 }
 
-.review-preview-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.preview-date {
+  color: #888;
 }
 
-.review-preview-card h4 {
-  margin: 0;
-  color: #333;
-  font-size: 1.1rem;
+/* Detail view metadata */
+.review-title-group {
+  flex: 1;
 }
 
+.review-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.review-author {
+  color: #444;
+  font-weight: 500;
+}
+
+.review-date {
+  color: #888;
+}
+
+.review-edited {
+  color: #888;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .preview-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .review-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* Ensure other preview elements stack properly */
 .preview-location {
   color: #666;
   font-size: 0.9rem;
-  margin: 4px 0 8px 0;
+  margin: 4px 0;
+}
+
+.preview-distance {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 4px 0;
 }
 
 .preview-rating {
   display: flex;
   align-items: center;
   margin-top: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .preview-username {
+    font-size: 0.75rem;
+  }
 }
 
 /* Detail modal styles */
@@ -297,4 +352,49 @@
   content: "No reviews available";
   color: #666;
   font-size: 1.1rem;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.review-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.action-button.edit {
+  color: #4a90e2;
+}
+
+.action-button.delete {
+  color: #e25c5c;
+}
+
+.preview-distance {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.2rem 0;
+}
+
+.detail-distance {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1rem;
 }

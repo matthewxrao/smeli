@@ -11,21 +11,48 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
   const [reviews, setReviews] = useState([]);
+  const [viewMode, setViewMode] = useState("user");
+  const [userLocation, setUserLocation] = useState(null);
+  const [editingReview, setEditingReview] = useState(null);
 
   useEffect(() => {
     if (token) {
       setIsAuthenticated(true);
+
+      // Get user's location
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.error("Error getting location:", error);
+          }
+        );
+      }
       fetchReviews();
     }
-  }, [token]);
+  }, [token, viewMode]);
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/reviews/user", {
+      const endpoint = viewMode === "user" ? "reviews/user" : "reviews/nearby";
+      const url = new URL(`http://127.0.0.1:5000/${endpoint}`);
+
+      if (viewMode === "nearby" && userLocation) {
+        url.searchParams.append("latitude", userLocation.latitude);
+        url.searchParams.append("longitude", userLocation.longitude);
+      }
+
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.ok) {
         const data = await response.json();
         setReviews(data.reviews);
@@ -36,6 +63,58 @@ function App() {
       console.error("Error fetching reviews:", error);
       handleLogout();
     }
+  };
+
+  const handleEditReview = (review) => {
+    setEditingReview(review);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5000/delete_review/${reviewId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        await fetchReviews(); // Immediately fetch updated reviews
+      }
+    } catch (error) {
+      console.error("Error deleting review:", error);
+    }
+  };
+
+  const handleUpdateReview = async (formData) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5000/update_review/${editingReview.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (response.ok) {
+        await fetchReviews(); // Immediately fetch updated reviews
+        setEditingReview(null);
+      }
+    } catch (error) {
+      console.error("Error updating review:", error);
+    }
+  };
+
+  const toggleViewMode = () => {
+    setViewMode((prevMode) => (prevMode === "user" ? "nearby" : "user"));
   };
 
   const handleLogin = (newToken, userData) => {
@@ -72,12 +151,17 @@ function App() {
         username={user?.username}
         onLogout={handleLogout}
         openCreateModal={openCreateModal}
+        viewMode={viewMode}
+        onToggleView={toggleViewMode}
       />
       <div className="app-container">
         <ReviewList
           reviews={reviews}
           token={token}
-          fetchReviews={fetchReviews}
+          viewMode={viewMode}
+          userLocation={userLocation}
+          onDelete={handleDeleteReview}
+          onEdit={handleEditReview}
         />
       </div>
 
@@ -91,7 +175,10 @@ function App() {
               <ReviewForm
                 closeModal={closeModal}
                 token={token}
-                onReviewCreated={fetchReviews}
+                onSubmit={editingReview ? handleUpdateReview : undefined}
+                initialData={editingReview}
+                isEditing={!!editingReview}
+                onReviewCreated={fetchReviews} // Changed from onReviewCreated to match the prop name
               />
             </div>
           </div>

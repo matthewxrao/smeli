@@ -5,12 +5,12 @@ import "../styles/Reviews.css";
 import "../styles/Modal.css";
 
 function ReviewForm({
-  fetchReviews,
   closeModal,
   token,
   initialData,
   onSubmit,
   isEditing,
+  onReviewCreated, // Changed from fetchReviews to match the prop name
 }) {
   const [formData, setFormData] = useState({
     title: "",
@@ -64,12 +64,19 @@ function ReviewForm({
         });
 
         if (!response.ok) {
-          throw new Error("Failed to create review");
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to create review");
         }
 
-        await fetchReviews();
+        const result = await response.json();
+
+        // Call the callback after successful creation
+        if (onReviewCreated) {
+          await onReviewCreated();
+        }
       } catch (error) {
         console.error("Error creating review:", error);
+        alert(error.message || "Failed to create review");
       }
     }
 
@@ -149,7 +156,7 @@ function ReviewForm({
       </div>
 
       <div className="form-group">
-        <label>Extra Amenities</label>
+        <label>Amenities</label>
         <SetStarRating
           value={formData.extra_amenities}
           onChange={(value) => handleRatingChange("extra_amenities", value)}
@@ -167,7 +174,7 @@ function ReviewForm({
       </div>
 
       <button type="submit" className="submit-button">
-        {isEditing ? "Update Review" : "Submit Review"}
+        {isEditing ? "Update Entry" : "Submit Entry"}
       </button>
     </form>
   );

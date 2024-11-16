@@ -1,6 +1,4 @@
-/* -----------------------------
-   Navigation Bar Styles
------------------------------ */
+/* -----------------------------    Navigation Bar Styles ----------------------------- */
 .navbar {
   background-color: white;
   padding: 1rem 2rem;
@@ -37,7 +35,7 @@
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   font-weight: 500;
   font-size: 0.875rem;
 }
@@ -49,6 +47,27 @@
 .nav-icon {
   font-size: 1.25rem;
   color: #6c757d;
+  transition: color 0.2s ease;
+}
+
+/* Add styles for user view mode */
+.nav-item[data-view="user"] .nav-icon {
+  color: #007bff;
+}
+
+/* Style for nearby view mode */
+.nav-item[data-view="nearby"] .nav-icon {
+  color: #6c757d;
+}
+
+.nav-item.active {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 50%;
+}
+
+.nav-item:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 50%;
 }
 
 .profile-menu {

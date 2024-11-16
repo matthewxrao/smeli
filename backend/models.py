@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from config import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -15,39 +16,41 @@ class User(db.Model):
 
     def to_json(self):
         return {
-            "id": self.id,
-            "username": self.username
+            'id': self.id,
+            'username': self.username
         }
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    location = db.Column(db.String(255), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    location = db.Column(db.String(200), nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     overall_experience = db.Column(db.Float, nullable=False)
-    cleanliness = db.Column(db.Integer, nullable=False)
-    ambience = db.Column(db.Integer, nullable=False)
-    extra_amenities = db.Column(db.Integer, nullable=False)
-    notes = db.Column(db.String(255))
-    times_visited = db.Column(db.Integer, default=1)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    cleanliness = db.Column(db.Float, nullable=False)
+    ambience = db.Column(db.Float, nullable=False)
+    extra_amenities = db.Column(db.Float, nullable=False)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def calculate_overall_experience(self):
         return round((self.cleanliness + self.ambience + self.extra_amenities) / 3, 2)
 
     def to_json(self):
         return {
-            "id": self.id,
-            "title": self.title,
-            "location": self.location,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "overall_experience": self.overall_experience,
-            "cleanliness": self.cleanliness,
-            "ambience": self.ambience,
-            "extra_amenities": self.extra_amenities,
-            "notes": self.notes,
-            "times_visited": self.times_visited,
-            "user_id": self.user_id
+            'id': self.id,
+            'user_id': self.user_id,
+            'title': self.title,
+            'location': self.location,
+            'latitude': float(self.latitude),
+            'longitude': float(self.longitude),
+            'overall_experience': float(self.overall_experience),
+            'cleanliness': float(self.cleanliness),
+            'ambience': float(self.ambience),
+            'extra_amenities': float(self.extra_amenities),
+            'notes': self.notes,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

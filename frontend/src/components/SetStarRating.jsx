@@ -24,7 +24,7 @@ const SetStarRating = ({ value, onChange, disabled = false }) => {
 
   const renderStarIcon = (index, activeValue) => {
     const starStyle = {
-      color: "#ff0",
+      color: "#ffc107",
       fontSize: "28px",
       opacity: disabled ? 0.6 : 1,
       cursor: disabled ? "default" : "pointer",

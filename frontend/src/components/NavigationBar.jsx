@@ -4,7 +4,13 @@ import { FaUserCircle } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import "../styles/Navbar.css";
 
-function NavigationBar({ username, onLogout, openCreateModal }) {
+function NavigationBar({
+  username,
+  onLogout,
+  openCreateModal,
+  viewMode,
+  onToggleView,
+}) {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleProfileClick = () => {
@@ -22,7 +28,16 @@ function NavigationBar({ username, onLogout, openCreateModal }) {
       </div>
 
       <div className="navbar-items">
-        <div className="nav-item">
+        <div
+          className={`nav-item ${viewMode === "nearby" ? "active" : ""}`}
+          data-view={viewMode}
+          onClick={onToggleView}
+          title={
+            viewMode === "user"
+              ? "Switch to Nearby Reviews"
+              : "Switch to My Reviews"
+          }
+        >
           <IoGrid className="nav-icon" />
         </div>
 

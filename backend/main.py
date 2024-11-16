@@ -4,7 +4,8 @@ from config import app, db
 from models import Review, User
 from functools import wraps
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+import math
 
 # Secret key for JWT
 app.config['SECRET_KEY'] = 'your-secret-key'  # Change this to a secure secret key in production
@@ -53,7 +54,7 @@ def login():
 
     token = jwt.encode({
         'user_id': user.id,
-        'exp': datetime.utcnow() + timedelta(days=1)
+        'exp': datetime.now(timezone.utc) + timedelta(days=1)
     }, app.config['SECRET_KEY'])
 
     return jsonify({
@@ -64,67 +65,76 @@ def login():
 @app.route("/reviews/nearby", methods=["GET"])
 @token_required
 def get_nearby_reviews(current_user):
-    # Get latitude and longitude from query parameters
     try:
         lat = float(request.args.get('latitude'))
         lng = float(request.args.get('longitude'))
     except (TypeError, ValueError):
         return jsonify({"message": "Invalid latitude or longitude"}), 400
 
-    # Haversine formula in SQL to calculate distance
-    distance_query = """
-    WITH distances AS (
-        SELECT 
-            *,
-            (6371 * acos(
-                cos(radians(:latitude)) * 
-                cos(radians(latitude)) * 
-                cos(radians(longitude) - radians(:longitude)) + 
-                sin(radians(:latitude)) * 
-                sin(radians(latitude))
-            )) AS distance
-        FROM review
-    )
-    SELECT * FROM distances 
-    ORDER BY distance ASC 
-    LIMIT 10;
-    """
-
     try:
-        result = db.session.execute(
-            text(distance_query),
-            {"latitude": lat, "longitude": lng}
-        )
-        
-        # Convert result to list of dictionaries
+        # Get all reviews with user information
+        reviews = db.session.query(Review, User).join(User).all()
         nearby_reviews = []
-        for row in result:
-            review_dict = {
-                "id": row.id,
-                "title": row.title,
-                "location": row.location,
-                "latitude": row.latitude,
-                "longitude": row.longitude,
-                "overall_experience": row.overall_experience,
-                "cleanliness": row.cleanliness,
-                "ambience": row.ambience,
-                "extra_amenities": row.extra_amenities,
-                "notes": row.notes,
-                "distance_km": round(row.distance, 2)
-            }
-            nearby_reviews.append(review_dict)
 
-        return jsonify({"reviews": nearby_reviews})
+        for review, user in reviews:
+            try:
+                lat1 = math.radians(lat)
+                lon1 = math.radians(lng)
+                lat2 = math.radians(review.latitude)
+                lon2 = math.radians(review.longitude)
+
+                dlon = lon2 - lon1
+                dlat = lat2 - lat1
+                a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+                c = 2 * math.asin(math.sqrt(a))
+                r = 6371  # Radius of Earth in kilometers
+
+                distance = c * r
+
+                if distance <= 50:  # Only include reviews within 50km
+                    review_dict = review.to_json()
+                    review_dict['username'] = user.username  # Add username directly
+                    review_dict['distance_km'] = round(distance, 2)
+                    nearby_reviews.append(review_dict)
+
+            except (TypeError, ValueError) as e:
+                print(f"Error calculating distance for review {review.id}: {e}")
+                continue
+
+        nearby_reviews.sort(key=lambda x: x['distance_km'])
+
+        if not nearby_reviews:
+            return jsonify({
+                "reviews": [],
+                "message": "No reviews found within 50km of your location"
+            })
+
+        return jsonify({
+            "reviews": nearby_reviews,
+            "total": len(nearby_reviews)
+        })
+
     except Exception as e:
-        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+        print(f"Error in get_nearby_reviews: {str(e)}")
+        return jsonify({
+            "message": "An error occurred while fetching nearby reviews",
+            "error": str(e)
+        }), 500
 
 @app.route("/reviews/user", methods=["GET"])
 @token_required
 def get_user_reviews(current_user):
     try:
-        user_reviews = Review.query.filter_by(user_id=current_user.id).all()
+        user_reviews = db.session.query(Review, User)\
+            .join(User)\
+            .filter(Review.user_id == current_user.id)\
+            .all()
+            
         return jsonify({
-            "reviews": [review.to_json() for review in user_reviews]
+            "reviews": [{
+                **review.to_json(),
+                'username': user.username
+            } for review, user in user_reviews]
         })
     except Exception as e:
         return jsonify({"message": f"An error occurred: {str(e)}"}), 500
@@ -155,10 +165,23 @@ def create_review(current_user):
     try:
         db.session.add(new_review)
         db.session.commit()
-    except Exception as e:
-        return jsonify({"message": f"An error occurred: {str(e)}"}), 400
+        
+        # Get the review with username for response
+        review_with_user = db.session.query(Review, User)\
+            .join(User)\
+            .filter(Review.id == new_review.id)\
+            .first()
+        
+        response_data = review_with_user[0].to_json()
+        response_data['username'] = review_with_user[1].username
 
-    return jsonify({"message": "Review created successfully!"}), 201
+        return jsonify({
+            "message": "Review created successfully!",
+            "review": response_data
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 400
 
 @app.route("/update_review/<int:review_id>", methods=["PATCH"])
 @token_required
@@ -169,23 +192,32 @@ def update_review(current_user, review_id):
 
     data = request.json
     
-    for field in ["title", "location", "latitude", "longitude", "cleanliness", "ambience", "extra_amenities", "notes"]:
-        if field in data:
-            setattr(review, field, data[field])
-    
-    if any(field in data for field in ["cleanliness", "ambience", "extra_amenities"]):
-        review.overall_experience = review.calculate_overall_experience()
-    
     try:
+        for field in ["title", "location", "latitude", "longitude", "cleanliness", "ambience", "extra_amenities", "notes"]:
+            if field in data:
+                setattr(review, field, data[field])
+        
+        if any(field in data for field in ["cleanliness", "ambience", "extra_amenities"]):
+            review.overall_experience = review.calculate_overall_experience()
+        
         db.session.commit()
+
+        # Get updated review with username
+        updated_review_with_user = db.session.query(Review, User)\
+            .join(User)\
+            .filter(Review.id == review_id)\
+            .first()
+            
+        response_data = updated_review_with_user[0].to_json()
+        response_data['username'] = updated_review_with_user[1].username
+
+        return jsonify({
+            "message": "Review updated successfully!",
+            "review": response_data
+        }), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({"message": f"An error occurred: {str(e)}"}), 400
-
-    return jsonify({
-        "message": "Review updated successfully!",
-        "review": review.to_json()
-    }), 200
-
 
 @app.route("/delete_review/<int:review_id>", methods=["DELETE"])
 @token_required
@@ -194,9 +226,13 @@ def delete_review(current_user, review_id):
     if not review:
         return jsonify({"message": "Review not found or unauthorized"}), 404
 
-    db.session.delete(review)
-    db.session.commit()
-    return jsonify({"message": "Review deleted successfully!"}), 200
+    try:
+        db.session.delete(review)
+        db.session.commit()
+        return jsonify({"message": "Review deleted successfully!"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 400
 
 if __name__ == "__main__":
     with app.app_context():
