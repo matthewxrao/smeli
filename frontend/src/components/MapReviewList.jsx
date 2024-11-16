@@ -293,7 +293,7 @@ const MapReviewList = ({
                 <p>{review.location}</p>
                 <h4>by: {review.username}</h4>
                 <h4>Rating: {review.overall_experience}</h4>
-                <h5>{review.note}</h5>
+                <h5>Additional Comments: {review.notes}</h5>
               </Popup>
             </Marker>
           ))}
@@ -405,11 +405,7 @@ const ReviewPreview = ({ review, onEdit, onDelete, viewMode }) => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (
-                  window.confirm("Are you sure you want to delete this review?")
-                ) {
-                  onDelete(review.id);
-                }
+                onDelete(review.id);
               }}
               className="action-button delete"
               aria-label="Delete review"
