@@ -1,6 +1,6 @@
 # Smeli
 
-Smeli is a web application that allows users to review and rate public restrooms. Users can search for nearby restrooms, view reviews, and add their own reviews.
+Smeli is a web application that allows users to review and rate public restrooms. Users can search for nearby restrooms, view reviews, and add their own reviews. Placed 3rd Overall in Hack112
 
 ## Technologies Used
 
